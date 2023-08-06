@@ -24,7 +24,9 @@ class CustomedRequest {
     )
 
     /** 全局拦截器处理 */
-    // ...
+    this.instance.interceptors.response.use((res) => {
+      return res.data
+    })
   }
 
   request<T = any>(config: CustomedRequestConfig<T>): Promise<T> {
