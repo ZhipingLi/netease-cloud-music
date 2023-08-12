@@ -1,5 +1,6 @@
 import React, { memo, useEffect } from "react"
 import type { ReactNode, FC } from "react"
+import { shallowEqual } from "react-redux"
 
 import { useAppDispatch, useAppSelector } from "@/store"
 import { fetchRecommendRankingAction } from "../../store"
@@ -13,9 +14,12 @@ interface IProps {
 
 const RecommendRanking: FC<IProps> = () => {
   const dispatch = useAppDispatch()
-  const { playlists } = useAppSelector((state) => ({
-    playlists: state.recommend.playLists,
-  }))
+  const { playlists } = useAppSelector(
+    (state) => ({
+      playlists: state.recommend.playLists,
+    }),
+    shallowEqual
+  )
 
   const getRankingIds = () => [19723756, 3779629, 2884035] // ["飙升榜", "新歌榜", "原创榜"]
   useEffect(() => {
