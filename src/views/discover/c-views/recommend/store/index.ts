@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 
 import {
+  getSettleSingers,
   getBanners,
   getHotRecommend,
   getNewAlbum,
@@ -13,6 +14,7 @@ import type {
   IHotRecommend,
   IPlayLlist,
   Playlist,
+  Singer,
 } from "../service"
 import fallbackData from "./fallback-data.json"
 
@@ -21,6 +23,7 @@ interface IRecommendState {
   hotRecommend: IHotRecommend[]
   newAlbum: IAlbum[]
   playLists: Playlist[]
+  settleSingers: Singer[]
 }
 
 const initialState: IRecommendState = {
@@ -28,6 +31,7 @@ const initialState: IRecommendState = {
   hotRecommend: [],
   newAlbum: [],
   playLists: [],
+  settleSingers: [],
 }
 
 const recommendSlice = createSlice({
@@ -51,6 +55,9 @@ const recommendSlice = createSlice({
       { payload }: PayloadAction<Playlist[]>
     ) {
       state.playLists = payload
+    },
+    changeSettleSingerAction(state, { payload }: PayloadAction<Singer[]>) {
+      state.settleSingers = payload
     },
   },
 })
@@ -100,10 +107,20 @@ export const fetchRecommendRankingAction = createAsyncThunk(
   }
 )
 
+export const fetchSettleSingerAction = createAsyncThunk(
+  "recommend/artistList",
+  (_, { dispatch }) => {
+    getSettleSingers(5).then((res) => {
+      dispatch(changeSettleSingerAction(res.artists))
+    })
+  }
+)
+
 export default recommendSlice.reducer
 export const {
   changeBannersAction,
   changeHotRecomendAction,
   changeNewAlbumAction,
   changeRecommendRankingAction,
+  changeSettleSingerAction,
 } = recommendSlice.actions
