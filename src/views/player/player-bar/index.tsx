@@ -10,8 +10,9 @@ import {
   BarOperatoreWrapper,
   PlayerBarWrapper,
 } from "./style"
-import { formatImageUrlBySize, getSongPlayUrl } from "@/utils"
+import { formatImageUrlBySize } from "@/utils"
 import { useAppSelector } from "@/store"
+import { getSongPlayUrls } from "../service"
 
 interface IProps {
   children?: ReactNode
@@ -29,36 +30,16 @@ const PlayerBar: FC<IProps> = () => {
     shallowEqual
   )
 
-  /** 组件内的副作用操作 */
   useEffect(() => {
-    audioRef.current!.src = getSongPlayUrl(currentSong.id)
-    // audioRef
-    //   .current!.play()
-    //   .then(() => {
-    //     setIsPlaying(true)
-    //     console.log("success")
-    //   })
-    //   .catch((err) => {
-    //     setIsPlaying(false)
-    //     console.log("fail")
-    //     console.log(err)
-    //   })
-
-    // setDuration(currentSong.dt)
+    getSongPlayUrls([currentSong.id]).then((res) => {
+      audioRef.current!.src = res.data?.[0].url
+    })
   }, [currentSong])
 
   function handlePlayBtnClick() {
-    if (isPlaying) {
-      console.log("---")
-    } else {
-      console.log("====")
-    }
     isPlaying
       ? audioRef.current!.pause()
-      : audioRef.current!.play().catch((err) => {
-          setIsPlaying(false)
-          console.log(err, "!!!")
-        })
+      : audioRef.current!.play().catch(() => setIsPlaying(false))
 
     setIsPlaying(!isPlaying)
   }
@@ -92,7 +73,7 @@ const PlayerBar: FC<IProps> = () => {
               <div className="time">
                 <span className="current">00:52</span>
                 <span className="divider"> / </span>
-                <span className="total">04:34</span>
+                <span className="duration">04:34</span>
               </div>
             </div>
           </div>
