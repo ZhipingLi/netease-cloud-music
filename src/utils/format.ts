@@ -11,3 +11,10 @@ export function formatImageUrlBySize(
 ) {
   return imageUrl + `?param=${width}y${height}`
 }
+
+export function formatMillisecondsToTime(milliseconds: number = 0) {
+  const seconds = milliseconds / 1000
+  const minute = Math.floor(seconds / 60)
+  const second = Math.floor(seconds % 60)
+  return `${String(minute).padStart(2, "0")}:${String(second).padStart(2, "0")}`
+}
