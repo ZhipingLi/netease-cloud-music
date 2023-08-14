@@ -1,6 +1,7 @@
-import React, { memo } from "react"
+import React, { memo, useEffect, useRef, useState } from "react"
 import type { ReactNode, FC } from "react"
 import { Link } from "react-router-dom"
+import { shallowEqual } from "react-redux"
 import { Slider } from "antd"
 
 import {
@@ -9,29 +10,75 @@ import {
   BarOperatoreWrapper,
   PlayerBarWrapper,
 } from "./style"
-import { formatImageUrlBySize } from "@/utils"
+import { formatImageUrlBySize, getSongPlayUrl } from "@/utils"
+import { useAppSelector } from "@/store"
 
 interface IProps {
   children?: ReactNode
 }
 
 const PlayerBar: FC<IProps> = () => {
+  const audioRef = useRef<HTMLAudioElement>(null)
+
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const { currentSong } = useAppSelector(
+    (state) => ({
+      currentSong: state.player.currentSong,
+    }),
+    shallowEqual
+  )
+
+  /** 组件内的副作用操作 */
+  useEffect(() => {
+    audioRef.current!.src = getSongPlayUrl(currentSong.id)
+    // audioRef
+    //   .current!.play()
+    //   .then(() => {
+    //     setIsPlaying(true)
+    //     console.log("success")
+    //   })
+    //   .catch((err) => {
+    //     setIsPlaying(false)
+    //     console.log("fail")
+    //     console.log(err)
+    //   })
+
+    // setDuration(currentSong.dt)
+  }, [currentSong])
+
+  function handlePlayBtnClick() {
+    if (isPlaying) {
+      console.log("---")
+    } else {
+      console.log("====")
+    }
+    isPlaying
+      ? audioRef.current!.pause()
+      : audioRef.current!.play().catch((err) => {
+          setIsPlaying(false)
+          console.log(err, "!!!")
+        })
+
+    setIsPlaying(!isPlaying)
+  }
+
   return (
     <PlayerBarWrapper className="sprite_playerbar">
       <div className="content wrapper-v2">
-        <BarControlWrapper>
+        <BarControlWrapper $isPlaying={isPlaying}>
           <button className="btn sprite_playerbar prev"></button>
-          <button className="btn sprite_playerbar play"></button>
+          <button
+            className="btn sprite_playerbar play"
+            onClick={handlePlayBtnClick}
+          ></button>
           <button className="btn sprite_playerbar next"></button>
         </BarControlWrapper>
         <BarInfoWrapper>
           <Link to="/discover/player">
             <img
               className="image"
-              src={formatImageUrlBySize(
-                "https://p2.music.126.net/i2P1ox4pWG9VLeoRFeUxfQ==/76965813961922.jpg",
-                34
-              )}
+              src={formatImageUrlBySize(currentSong?.al?.picUrl, 34)}
               alt=""
             />
           </Link>
@@ -63,6 +110,7 @@ const PlayerBar: FC<IProps> = () => {
           </div>
         </BarOperatoreWrapper>
       </div>
+      <audio ref={audioRef} />
     </PlayerBarWrapper>
   )
 }
