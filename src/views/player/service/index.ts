@@ -5,7 +5,7 @@ import requestInstance from "@/service"
  * method: getSongDetail
  */
 export function getSongDetail(ids: number[]) {
-  return requestInstance.get({
+  return requestInstance.get<SongDetailResult>({
     url: "/song/detail",
     params: {
       ids: ids.join(","),
@@ -28,7 +28,7 @@ export interface Song {
   alia: any[]
   pop: number
   st: number
-  rt: string
+  rt?: string | null
   fee: number
   v: number
   crbt: any
@@ -38,8 +38,8 @@ export interface Song {
   h: H
   m: M
   l: L
-  sq: Sq
-  hr: any
+  sq?: Sq
+  hr?: Hr | null
   a: any
   cd: string
   no: number
@@ -81,6 +81,7 @@ export interface Al {
   picUrl: string
   tns: any[]
   pic: number
+  pic_str?: string
 }
 
 export interface H {
@@ -108,6 +109,14 @@ export interface L {
 }
 
 export interface Sq {
+  br: number
+  fid: number
+  size: number
+  vd: number
+  sr: number
+}
+
+export interface Hr {
   br: number
   fid: number
   size: number

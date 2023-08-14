@@ -92,14 +92,14 @@ const PlayerBar: FC<IProps> = () => {
           <Link to="/discover/player">
             <img
               className="image"
-              src={formatImageUrlBySize(currentSong.al?.picUrl, 34)}
+              src={formatImageUrlBySize(currentSong.al.picUrl, 34)}
               alt=""
             />
           </Link>
           <div className="info">
             <div className="song">
-              <span className="song-name">{currentSong.name}</span>
-              <span className="singer-name">{currentSong.ar?.[0]?.name}</span>
+              <span className="song-name">{currentSong?.name}</span>
+              <span className="singer-name">{currentSong?.ar?.[0]?.name}</span>
             </div>
             <div className="progress">
               <Slider
@@ -114,7 +114,7 @@ const PlayerBar: FC<IProps> = () => {
                   {formatMillisecondsToTime(currentTime)}
                 </span>
                 <span className="divider"> / </span>
-                <span>{formatMillisecondsToTime(currentSong.dt)}</span>
+                <span>{formatMillisecondsToTime(currentSong?.dt)}</span>
               </div>
             </div>
           </div>
