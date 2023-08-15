@@ -241,3 +241,47 @@ export interface FreeTimeTrialPrivilege {
   type: number
   remainTime: number
 }
+
+/**
+ * url: "/lyric"
+ * method: getSongLyric
+ */
+export function getSongLyric(id: number) {
+  return requestInstance.get<LyricResult>({
+    url: "lyric",
+    params: {
+      id,
+    },
+  })
+}
+
+export interface LyricResult {
+  sgc: boolean
+  sfy: boolean
+  qfy: boolean
+  lrc: Lyric
+  klyric: Klyric
+  tlyric: Tlyric
+  romalrc: Romalrc
+  code: number
+}
+
+export interface Lyric {
+  version: number
+  lyric: string
+}
+
+export interface Klyric {
+  version: number
+  lyric: string
+}
+
+export interface Tlyric {
+  version: number
+  lyric: string
+}
+
+export interface Romalrc {
+  version: number
+  lyric: string
+}

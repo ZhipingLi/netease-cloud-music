@@ -2,7 +2,7 @@ import React, { memo, useEffect, useRef, useState } from "react"
 import type { ReactNode, FC } from "react"
 import { Link } from "react-router-dom"
 import { shallowEqual } from "react-redux"
-import { Slider } from "antd"
+import { Slider, message } from "antd"
 
 import {
   BarControlWrapper,
@@ -11,14 +11,20 @@ import {
   PlayerBarWrapper,
 } from "./style"
 import { formatImageUrlBySize, formatMillisecondsToTime } from "@/utils"
-import { useAppSelector } from "@/store"
+import { useAppDispatch, useAppSelector } from "@/store"
 import { getSongPlayUrls } from "../service"
+import { changeLyricIndexAction, fetchSongDetailAction } from "../store"
 
 interface IProps {
   children?: ReactNode
 }
 
 const PlayerBar: FC<IProps> = () => {
+  const dispatch = useAppDispatch()
+  useEffect(() => {
+    dispatch(fetchSongDetailAction([2024611328]))
+  }, [])
+
   const audioRef = useRef<HTMLAudioElement>(null)
   const isDragging = useRef(false)
 
@@ -26,9 +32,11 @@ const PlayerBar: FC<IProps> = () => {
   const [currentTime, setCurrentTime] = useState(0)
   const [progress, setProgress] = useState(0)
 
-  const { currentSong } = useAppSelector(
+  const { currentSong, lyrics, lyricIndex } = useAppSelector(
     (state) => ({
       currentSong: state.player.currentSong,
+      lyrics: state.player.lyrics,
+      lyricIndex: state.player.lyricIndex,
     }),
     shallowEqual
   )
@@ -58,6 +66,20 @@ const PlayerBar: FC<IProps> = () => {
     const progress = (currentTimeMilliseconds / duration) * 100 // %
     setCurrentTime(currentTimeMilliseconds)
     setProgress(progress)
+
+    /** 歌词匹配 */
+    let index = lyrics.findIndex((lyric) => lyric.time > currentTime)
+    // 解决最后一句歌词匹配
+    if (index === -1) index = lyrics.length
+    // 出现新歌词 -> 记录
+    if (lyricIndex === index - 1 || index - 1 === -1) return
+    dispatch(changeLyricIndexAction(index - 1))
+    // 歌词展示
+    message.open({
+      content: lyrics[index - 1]?.text,
+      duration: 0, // 不自动关闭message
+      key: "lyric", // key相同时原来的message会被替代
+    })
   }
 
   /** 进度条的点击处理 */

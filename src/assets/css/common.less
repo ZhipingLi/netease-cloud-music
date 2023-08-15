@@ -1,4 +1,8 @@
-body, textarea, select, input, button {
+body,
+textarea,
+select,
+input,
+button {
   font-size: 12px;
   color: #333;
   font-family: Arial, Helvetica, sans-serif;
@@ -57,4 +61,26 @@ body, textarea, select, input, button {
 
 .sprite_playlist {
   background: url(../img/playlist_sprite.png) no-repeat 0 9999px;
+}
+
+// .ant-message .ant-message-notice-content {
+//   position: fixed;
+//   left: 50%;
+//   transform: translateX(-50%);
+//   bottom: 60px;
+//   background-color: rgba(0, 0, 0, .7);
+//   color: #fff;
+// }
+
+.ant-message {
+  bottom: 0;
+
+  .ant-message-notice-content {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 60px;
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    color: #fff;
+  }
 }
