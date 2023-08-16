@@ -74,8 +74,15 @@ export const fetchSongDetailsToSongListAction = createAsyncThunk(
 export const updateCurrentSongfromSongListAction = createAsyncThunk(
   "player/updateCurrentSong",
   (_, { getState, dispatch }) => {
-    const { songList, songIndex } = (getState() as any).player
-    dispatch(changeCurrentSongAction(songList[songIndex]))
+    const { songList, songIndex, currentSong } = (getState() as any).player
+    dispatch(
+      // 实现切换相同歌曲时，歌曲重新播放
+      changeCurrentSongAction(
+        songList[songIndex] === currentSong
+          ? { ...songList[songIndex] }
+          : songList[songIndex]
+      )
+    )
   }
 )
 
@@ -103,7 +110,7 @@ export const playSingleSongAction = createAsyncThunk(
         })
       )
     } else {
-      changeSongIndexAction(index)
+      dispatch(changeSongIndexAction(index))
       dispatch(updateCurrentSongfromSongListAction())
     }
   }

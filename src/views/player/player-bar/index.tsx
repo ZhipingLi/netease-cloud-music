@@ -34,21 +34,17 @@ const PlayerBar: FC<IProps> = () => {
   const [currentTime, setCurrentTime] = useState(0)
   const [progress, setProgress] = useState(0)
 
-  const { currentSong } = useAppSelector(
-    (state) => ({
-      currentSong: state.player.currentSong,
-    }),
-    () => false
-  )
-  const { lyrics, lyricIndex, songIndex, songList } = useAppSelector(
-    (state) => ({
-      lyrics: state.player.lyrics,
-      lyricIndex: state.player.lyricIndex,
-      songIndex: state.player.songIndex,
-      songList: state.player.songList,
-    }),
-    shallowEqual
-  )
+  const { currentSong, lyrics, lyricIndex, songIndex, songList } =
+    useAppSelector(
+      (state) => ({
+        currentSong: state.player.currentSong,
+        lyrics: state.player.lyrics,
+        lyricIndex: state.player.lyricIndex,
+        songIndex: state.player.songIndex,
+        songList: state.player.songList,
+      }),
+      shallowEqual
+    )
 
   const dispatch = useAppDispatch()
   /** 自动收集播放源和歌词 */
@@ -76,7 +72,7 @@ const PlayerBar: FC<IProps> = () => {
   }, [])
 
   function handlexxx() {
-    dispatch(playSingleSongAction(1877017100))
+    dispatch(playSingleSongAction(2024611328))
   }
 
   /** 播放/暂停处理 */
