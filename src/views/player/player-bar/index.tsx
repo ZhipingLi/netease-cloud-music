@@ -58,6 +58,19 @@ const PlayerBar: FC<IProps> = () => {
     dispatch(fetchSongLyricAction(currentSong.id))
   }, [currentSong])
 
+  /** 停止/重新播放隐藏/再现歌词 */
+  useEffect(() => {
+    if (isPlaying) {
+      message.open({
+        content: lyrics[lyricIndex]?.text,
+        duration: 0,
+        key: "lyric",
+      })
+    } else {
+      message.destroy("lyric")
+    }
+  }, [isPlaying])
+
   /** 默认歌曲 */
   useEffect(() => {
     dispatch(
