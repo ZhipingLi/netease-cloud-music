@@ -1,23 +1,26 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import type { PayloadAction } from "@reduxjs/toolkit"
 
-import defaultSongs from "@/assets/local-data/default_songs.json"
+import defaultSong from "@/assets/local-data/default_song.json"
 import { getSongDetail, getSongLyric } from "../service"
+// import type { Song } from "../service"
 import { parseLyric } from "@/utils"
 import type { ILyric } from "@/utils"
-// import type { Song } from "../service"
 
 interface IPlayerState {
-  // currentSong: Song
-  currentSong: any
+  currentSong: any // Song
   lyrics: ILyric[]
   lyricIndex: number
+  songList: any[]
+  songIndex: number
 }
 
 const initialState: IPlayerState = {
-  currentSong: defaultSongs[Math.floor(Math.random() * defaultSongs.length)],
+  currentSong: defaultSong,
   lyrics: [],
   lyricIndex: -1,
+  songList: [defaultSong],
+  songIndex: 0,
 }
 
 const playerSlice = createSlice({
@@ -37,24 +40,72 @@ const playerSlice = createSlice({
     changeLyricIndexAction(state, { payload }: PayloadAction<number>) {
       state.lyricIndex = payload
     },
+    changeSongListAction(state, { payload }: PayloadAction<any[]>) {
+      state.songList = payload
+    },
+    changeSongIndexAction(state, { payload }: PayloadAction<number>) {
+      state.songIndex = payload
+    },
   },
 })
 
-export const fetchSongDetailAction = createAsyncThunk(
-  "player/songDetail",
-  (ids: number[], { dispatch }) => {
-    /** 歌曲数据 */
-    getSongDetail(ids).then((res) => {
+export const fetchSongDetailsToSongListAction = createAsyncThunk(
+  "player/songDetails",
+  (
+    args: {
+      ids: number[]
+      isCurrentSong: boolean
+    },
+    { getState, dispatch }
+  ) => {
+    getSongDetail(args.ids).then((res) => {
       if (!res.songs.length) return
-      // TO-DO: 加入到歌单播放列表
-      dispatch(changeCurrentSongAction(res.songs[0]))
-
-      /** 歌词数据 */
-      getSongLyric(res.songs[0].id).then((res) => {
-        const lyrics = parseLyric(res.lrc.lyric)
-        dispatch(changeLyricsAction(lyrics))
-      })
+      const { songList } = (getState() as any).player
+      // 加入歌单播放列表
+      dispatch(changeSongListAction([...songList, ...res.songs]))
+      if (args.isCurrentSong) {
+        dispatch(changeSongIndexAction(songList.length))
+        dispatch(updateCurrentSongfromSongListAction())
+      }
     })
+  }
+)
+
+export const updateCurrentSongfromSongListAction = createAsyncThunk(
+  "player/updateCurrentSong",
+  (_, { getState, dispatch }) => {
+    const { songList, songIndex } = (getState() as any).player
+    dispatch(changeCurrentSongAction(songList[songIndex]))
+  }
+)
+
+export const fetchSongLyricAction = createAsyncThunk(
+  "player/songLyric",
+  (id: number, { dispatch }) => {
+    /** 歌词数据 */
+    getSongLyric(id).then((res) => {
+      const lyrics = parseLyric(res.lrc.lyric)
+      dispatch(changeLyricsAction(lyrics))
+    })
+  }
+)
+
+export const playSingleSongAction = createAsyncThunk(
+  "player/playSingleSong",
+  (id: number, { getState, dispatch }) => {
+    const { songList } = (getState() as any).player
+    const index = songList.findIndex((song: any) => song.id === id)
+    if (index === -1) {
+      dispatch(
+        fetchSongDetailsToSongListAction({
+          ids: [id],
+          isCurrentSong: true,
+        })
+      )
+    } else {
+      changeSongIndexAction(index)
+      dispatch(updateCurrentSongfromSongListAction())
+    }
   }
 )
 
@@ -63,4 +114,6 @@ export const {
   changeCurrentSongAction,
   changeLyricsAction,
   changeLyricIndexAction,
+  changeSongListAction,
+  changeSongIndexAction,
 } = playerSlice.actions

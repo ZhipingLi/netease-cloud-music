@@ -13,18 +13,20 @@ import {
 import { formatImageUrlBySize, formatMillisecondsToTime } from "@/utils"
 import { useAppDispatch, useAppSelector } from "@/store"
 import { getSongPlayUrls } from "../service"
-import { changeLyricIndexAction, fetchSongDetailAction } from "../store"
+import {
+  changeLyricIndexAction,
+  changeSongIndexAction,
+  fetchSongDetailsToSongListAction,
+  fetchSongLyricAction,
+  playSingleSongAction,
+  updateCurrentSongfromSongListAction,
+} from "../store"
 
 interface IProps {
   children?: ReactNode
 }
 
 const PlayerBar: FC<IProps> = () => {
-  const dispatch = useAppDispatch()
-  useEffect(() => {
-    dispatch(fetchSongDetailAction([2024611328]))
-  }, [])
-
   const audioRef = useRef<HTMLAudioElement>(null)
   const isDragging = useRef(false)
 
@@ -32,20 +34,50 @@ const PlayerBar: FC<IProps> = () => {
   const [currentTime, setCurrentTime] = useState(0)
   const [progress, setProgress] = useState(0)
 
-  const { currentSong, lyrics, lyricIndex } = useAppSelector(
+  const { currentSong } = useAppSelector(
     (state) => ({
       currentSong: state.player.currentSong,
+    }),
+    () => false
+  )
+  const { lyrics, lyricIndex, songIndex, songList } = useAppSelector(
+    (state) => ({
       lyrics: state.player.lyrics,
       lyricIndex: state.player.lyricIndex,
+      songIndex: state.player.songIndex,
+      songList: state.player.songList,
     }),
     shallowEqual
   )
 
+  const dispatch = useAppDispatch()
+  /** 自动收集播放源和歌词 */
   useEffect(() => {
     getSongPlayUrls([currentSong.id]).then((res) => {
       audioRef.current!.src = res.data?.[0].url
+      // 解决切歌之后暂停播放
+      isPlaying && audioRef.current!.play().catch(() => setIsPlaying(false))
     })
+
+    dispatch(fetchSongLyricAction(currentSong.id))
   }, [currentSong])
+
+  /** 默认歌曲 */
+  useEffect(() => {
+    dispatch(
+      fetchSongDetailsToSongListAction({
+        ids: [
+          // 默认歌单
+          5256469, 513791211, 1894094482, 29723041, 569213220,
+        ],
+        isCurrentSong: false,
+      })
+    )
+  }, [])
+
+  function handlexxx() {
+    dispatch(playSingleSongAction(1877017100))
+  }
 
   /** 播放/暂停处理 */
   function handlePlayBtnClick() {
@@ -99,16 +131,42 @@ const PlayerBar: FC<IProps> = () => {
     setCurrentTime((ratio / 100) * currentSong.dt)
   }
 
+  /** 上一首 */
+  function handlePrevBtnClick() {
+    dispatch(
+      changeSongIndexAction(
+        songIndex === 0 ? songList.length - 1 : songIndex - 1
+      )
+    )
+    dispatch(updateCurrentSongfromSongListAction())
+  }
+
+  /** 下一首 */
+  function handleNextBtnClick() {
+    dispatch(
+      changeSongIndexAction(
+        songIndex === songList.length - 1 ? 0 : songIndex + 1
+      )
+    )
+    dispatch(updateCurrentSongfromSongListAction())
+  }
+
   return (
     <PlayerBarWrapper className="sprite_playerbar">
       <div className="content wrapper-v2">
         <BarControlWrapper $isPlaying={isPlaying}>
-          <button className="btn sprite_playerbar prev"></button>
+          <button
+            className="btn sprite_playerbar prev"
+            onClick={handlePrevBtnClick}
+          ></button>
           <button
             className="btn sprite_playerbar play"
             onClick={handlePlayBtnClick}
           ></button>
-          <button className="btn sprite_playerbar next"></button>
+          <button
+            className="btn sprite_playerbar next"
+            onClick={handleNextBtnClick}
+          ></button>
         </BarControlWrapper>
         <BarInfoWrapper>
           <Link to="/discover/player">
@@ -148,7 +206,10 @@ const PlayerBar: FC<IProps> = () => {
             <button className="btn sprite_playerbar share"></button>
           </div>
           <div className="right sprite_playerbar">
-            <button className="btn sprite_playerbar volume"></button>
+            <button
+              className="btn sprite_playerbar volume"
+              onClick={handlexxx}
+            ></button>
             <button className="btn sprite_playerbar loop"></button>
             <button className="btn sprite_playerbar playlist"></button>
           </div>

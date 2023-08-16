@@ -1,0 +1,86 @@
+{
+  "name": "又十年",
+  "id": 2024611328,
+  "pst": 0,
+  "t": 0,
+  "ar": [
+    {
+      "id": 6460,
+      "name": "张学友",
+      "tns": [],
+      "alias": []
+    }
+  ],
+  "alia": [],
+  "pop": 100,
+  "st": 0,
+  "rt": "",
+  "fee": 8,
+  "v": 4,
+  "crbt": null,
+  "cf": "",
+  "al": {
+    "id": 160556815,
+    "name": "又十年",
+    "picUrl": "https://p1.music.126.net/fJYuN7bg5HAi4tvuNUauBQ==/109951168375888145.jpg",
+    "tns": [],
+    "pic_str": "109951168375888145",
+    "pic": 109951168375888140
+  },
+  "dt": 238531,
+  "h": {
+    "br": 320000,
+    "fid": 0,
+    "size": 9544142,
+    "vd": -16215,
+    "sr": 44100
+  },
+  "m": {
+    "br": 192000,
+    "fid": 0,
+    "size": 5726502,
+    "vd": -13616,
+    "sr": 44100
+  },
+  "l": {
+    "br": 128000,
+    "fid": 0,
+    "size": 3817683,
+    "vd": -11907,
+    "sr": 44100
+  },
+  "sq": {
+    "br": 776619,
+    "fid": 0,
+    "size": 23156027,
+    "vd": -16277,
+    "sr": 44100
+  },
+  "hr": null,
+  "a": null,
+  "cd": "01",
+  "no": 1,
+  "rtUrl": null,
+  "ftype": 0,
+  "rtUrls": [],
+  "djId": 0,
+  "copyright": 1,
+  "s_id": 0,
+  "mark": 8192,
+  "originCoverType": 0,
+  "originSongSimpleData": null,
+  "tagPicList": null,
+  "resourceState": true,
+  "version": 4,
+  "songJumpInfo": null,
+  "entertainmentTags": null,
+  "awardTags": null,
+  "single": 0,
+  "noCopyrightRcmd": null,
+  "rtype": 0,
+  "rurl": null,
+  "mst": 9,
+  "cp": 7003,
+  "mv": 14612840,
+  "publishTime": 1677081600000
+}
