@@ -1,5 +1,12 @@
-import React, { memo, useEffect, useRef, useState } from "react"
-import type { ReactNode, FC } from "react"
+import React, {
+  forwardRef,
+  memo,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from "react"
+import type { ReactNode } from "react"
 import { Link } from "react-router-dom"
 import { shallowEqual } from "react-redux"
 import { Slider, message } from "antd"
@@ -22,17 +29,28 @@ import {
   updateCurrentSongfromSongListAction,
 } from "../store"
 
+export interface IExp {
+  setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>
+}
+
 interface IProps {
   children?: ReactNode
 }
 
-const PlayerBar: FC<IProps> = () => {
+// eslint-disable-next-line react/display-name
+const PlayerBar = forwardRef<IExp, IProps>((props, ref) => {
   const audioRef = useRef<HTMLAudioElement>(null)
   const isDragging = useRef(false)
 
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [progress, setProgress] = useState(0)
+
+  useImperativeHandle<IExp, IExp>(ref, () => {
+    return {
+      setIsPlaying,
+    }
+  })
 
   const { currentSong, lyrics, lyricIndex, songIndex, songList } =
     useAppSelector(
@@ -85,7 +103,12 @@ const PlayerBar: FC<IProps> = () => {
   }, [])
 
   function handlexxx() {
-    dispatch(playSingleSongAction(2024611328))
+    dispatch(
+      playSingleSongAction({
+        id: 2024611328,
+        callback: () => setIsPlaying(true),
+      })
+    )
   }
 
   /** 播放/暂停处理 */
@@ -116,11 +139,13 @@ const PlayerBar: FC<IProps> = () => {
     if (lyricIndex === index - 1 || index - 1 === -1) return
     dispatch(changeLyricIndexAction(index - 1))
     // 歌词展示
-    message.open({
-      content: lyrics[index - 1]?.text,
-      duration: 0, // 不自动关闭message
-      key: "lyric", // key相同时原来的message会被替代
-    })
+    if (isPlaying) {
+      message.open({
+        content: lyrics[index - 1]?.text,
+        duration: 0, // 不自动关闭message
+        key: "lyric", // key相同时原来的message会被替代
+      })
+    }
   }
 
   /** 进度条的点击处理 */
@@ -227,6 +252,6 @@ const PlayerBar: FC<IProps> = () => {
       <audio ref={audioRef} onTimeUpdate={handleTimeUpdate} />
     </PlayerBarWrapper>
   )
-}
+})
 
 export default memo(PlayerBar)

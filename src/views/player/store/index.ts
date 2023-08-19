@@ -55,19 +55,26 @@ export const fetchSongDetailsToSongListAction = createAsyncThunk(
     args: {
       ids: number[]
       isCurrentSong: boolean
+      fullfilledCallback?: () => void
+      rejectedCallback?: (err: Error) => void
     },
     { getState, dispatch }
   ) => {
-    getSongDetail(args.ids).then((res) => {
-      if (!res.songs.length) return
-      const { songList } = (getState() as any).player
-      // 加入歌单播放列表
-      dispatch(changeSongListAction([...songList, ...res.songs]))
-      if (args.isCurrentSong) {
-        dispatch(changeSongIndexAction(songList.length))
-        dispatch(updateCurrentSongfromSongListAction())
-      }
-    })
+    getSongDetail(args.ids)
+      .then((res) => {
+        if (!res.songs.length) throw new Error("empty song detail!")
+
+        const { songList } = (getState() as any).player
+        // 加入歌单播放列表
+        dispatch(changeSongListAction([...songList, ...res.songs]))
+        if (args.isCurrentSong) {
+          dispatch(changeSongIndexAction(songList.length))
+          // fullfilledCalback: setIsPlaying(true) -> 播放歌单，立即播放
+          args.fullfilledCallback && args.fullfilledCallback()
+          dispatch(updateCurrentSongfromSongListAction())
+        }
+      })
+      .catch(args.rejectedCallback)
   }
 )
 
@@ -99,20 +106,52 @@ export const fetchSongLyricAction = createAsyncThunk(
 
 export const playSingleSongAction = createAsyncThunk(
   "player/playSingleSong",
-  (id: number, { getState, dispatch }) => {
+  (
+    args: {
+      id: number
+      callback?: () => void
+    },
+    { getState, dispatch }
+  ) => {
     const { songList } = (getState() as any).player
-    const index = songList.findIndex((song: any) => song.id === id)
+    const index = songList.findIndex((song: any) => song.id === args.id)
     if (index === -1) {
       dispatch(
         fetchSongDetailsToSongListAction({
-          ids: [id],
+          ids: [args.id],
           isCurrentSong: true,
+          fullfilledCallback: args.callback,
         })
       )
     } else {
       dispatch(changeSongIndexAction(index))
       dispatch(updateCurrentSongfromSongListAction())
+      args.callback && args.callback()
     }
+  }
+)
+
+export const playSongListAction = createAsyncThunk(
+  "player/playSongList",
+  (
+    args: {
+      ids: number[]
+      callback?: () => void
+    },
+    { getState, dispatch }
+  ) => {
+    const { songList: originSongList } = (getState() as any).player
+    dispatch(changeSongListAction([]))
+    dispatch(
+      fetchSongDetailsToSongListAction({
+        ids: args.ids,
+        isCurrentSong: true,
+        fullfilledCallback: args.callback,
+        rejectedCallback: () => {
+          dispatch(changeSongListAction(originSongList))
+        },
+      })
+    )
   }
 )
 

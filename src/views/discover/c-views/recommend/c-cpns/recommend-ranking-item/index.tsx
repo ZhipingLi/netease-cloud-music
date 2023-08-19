@@ -1,10 +1,14 @@
-import React, { memo } from "react"
+import React, { memo, useContext } from "react"
 import type { ReactNode, FC } from "react"
-// import { Link } from "react-router-dom"
+import { Link } from "react-router-dom"
+import { flushSync } from "react-dom"
 
+import { useAppDispatch } from "@/store"
 import { RankingItemWrapper } from "./style"
 import type { Playlist } from "../../service"
 import { formatImageUrlBySize } from "@/utils"
+import { playSongListAction } from "@/views/player/store"
+import { playBarContext } from "@/global/context"
 
 interface IProps {
   children?: ReactNode
@@ -13,6 +17,22 @@ interface IProps {
 
 const RecommendRankingItem: FC<IProps> = (props) => {
   const { itemData } = props
+  const dispatch = useAppDispatch()
+  const setIsPlaying = useContext(playBarContext).current?.setIsPlaying
+
+  function handlePlayListBtnClick() {
+    const ids = itemData.trackIds.map((item) => item.id)
+    dispatch(
+      playSongListAction({
+        ids,
+        callback: () => {
+          flushSync(() => {
+            setIsPlaying && setIsPlaying(true)
+          })
+        },
+      })
+    )
+  }
 
   return (
     <RankingItemWrapper>
@@ -24,7 +44,10 @@ const RecommendRankingItem: FC<IProps> = (props) => {
         <div className="info">
           <div className="name">{itemData.name}</div>
           <div>
-            <div className="sprite_02 btn play"></div>
+            <div
+              className="sprite_02 btn play"
+              onClick={handlePlayListBtnClick}
+            ></div>
             <div className="sprite_02 btn favor"></div>
           </div>
         </div>
@@ -45,8 +68,7 @@ const RecommendRankingItem: FC<IProps> = (props) => {
         ))}
       </div>
       <div className="footer">
-        {/* <Link to="/discover/ranking">查看全部 &gt;</Link> */}
-        <a href="/discover/ranking">查看全部 &gt;</a>
+        <Link to="/discover/ranking">查看全部 &gt;</Link>
       </div>
     </RankingItemWrapper>
   )
