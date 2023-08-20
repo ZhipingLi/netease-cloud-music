@@ -1,5 +1,7 @@
 import { styled } from "styled-components"
 
+import { PlayMode } from "../store"
+
 export const PlayerBarWrapper = styled.div`
   position: fixed;
   z-index: 99;
@@ -139,7 +141,11 @@ export const BarInfoWrapper = styled.div`
   }
 `
 
-export const BarOperatoreWrapper = styled.div`
+interface BarOperatoreWrapperProps {
+  $playMode: number
+}
+
+export const BarOperatoreWrapper = styled.div<BarOperatoreWrapperProps>`
   display: flex;
   align-items: center;
   position: relative;
@@ -148,6 +154,7 @@ export const BarOperatoreWrapper = styled.div`
   .btn {
     width: 25px;
     height: 25px;
+    cursor: pointer;
   }
 
   .left {
@@ -157,14 +164,26 @@ export const BarOperatoreWrapper = styled.div`
 
   .pip {
     background: url(${require("@/assets/img/pip_icon.png")});
+
+    &:hover {
+      background-position-y: -25px;
+    }
   }
 
   .favor {
     background-position: -88px -163px;
+
+    &:hover {
+      background-position: -88px -189px;
+    }
   }
 
   .share {
     background-position: -114px -163px;
+
+    &:hover {
+      background-position: -114px -189px;
+    }
   }
 
   .right {
@@ -176,18 +195,55 @@ export const BarOperatoreWrapper = styled.div`
 
     .volume {
       background-position: -2px -248px;
+
+      &:hover {
+        background-position: -31px -248px;
+      }
     }
 
     .loop {
-      background-position: -66px -248px;
+      background-position: ${(props) => {
+        switch (props.$playMode) {
+          case PlayMode.INORDER:
+            return "-3px -344px"
+          case PlayMode.SHUFFLE:
+            return "-66px -248px"
+          case PlayMode.CYCLE:
+            return "-66px -344px"
+          default:
+            // eslint-disable-next-line no-case-declarations, @typescript-eslint/no-unused-vars
+            let check: never
+        }
+      }};
+
+      &:hover {
+        background-position: ${(props) => {
+          switch (props.$playMode) {
+            case PlayMode.INORDER:
+              return "-33px -344px"
+            case PlayMode.SHUFFLE:
+              return "-93px -248px"
+            case PlayMode.CYCLE:
+              return "-93px -344px"
+            default:
+              // eslint-disable-next-line no-case-declarations, @typescript-eslint/no-unused-vars
+              let check: never
+          }
+        }};
+      }
     }
 
     .playlist {
-      padding-left: 18px;
+      line-height: 26px;
+      padding-left: 23px;
       text-align: center;
       color: #ccc;
       width: 59px;
       background-position: -42px -68px;
+
+      &:hover {
+        background-position: -42px -98px;
+      }
     }
   }
 `

@@ -21,7 +21,9 @@ import { formatImageUrlBySize, formatMillisecondsToTime } from "@/utils"
 import { useAppDispatch, useAppSelector } from "@/store"
 import { getSongPlayUrls } from "../service"
 import {
+  PlayMode,
   changeLyricIndexAction,
+  changePlayModeAction,
   changeSongIndexAction,
   fetchSongDetailsToSongListAction,
   fetchSongLyricAction,
@@ -51,7 +53,7 @@ const PlayerBar = forwardRef<IExp, IProps>((props, ref) => {
     }
   })
 
-  const { currentSong, lyrics, lyricIndex, songIndex, songList } =
+  const { currentSong, lyrics, lyricIndex, songIndex, songList, playMode } =
     useAppSelector(
       (state) => ({
         currentSong: state.player.currentSong,
@@ -59,6 +61,7 @@ const PlayerBar = forwardRef<IExp, IProps>((props, ref) => {
         lyricIndex: state.player.lyricIndex,
         songIndex: state.player.songIndex,
         songList: state.player.songList,
+        playMode: state.player.playMode,
       }),
       shallowEqual
     )
@@ -155,24 +158,45 @@ const PlayerBar = forwardRef<IExp, IProps>((props, ref) => {
     setCurrentTime((ratio / 100) * currentSong.dt)
   }
 
-  /** 上一首 */
-  function handlePrevBtnClick() {
-    dispatch(
-      changeSongIndexAction(
-        songIndex === 0 ? songList.length - 1 : songIndex - 1
-      )
-    )
+  /** 切歌 */
+  function handleChangeMusicClick(isNext: boolean) {
+    let newIndex = -1
+    if (playMode === PlayMode.SHUFFLE) {
+      if (songList.length === 1) newIndex = 0
+      else {
+        do {
+          newIndex = Math.floor(Math.random() * songList.length)
+        } while (newIndex === songIndex)
+      }
+    } else if (playMode === PlayMode.INORDER || playMode === PlayMode.CYCLE) {
+      if (isNext) {
+        // 下一首
+        newIndex = songIndex === songList.length - 1 ? 0 : songIndex + 1
+      } else {
+        // 上一首
+        newIndex = songIndex === 0 ? songList.length - 1 : songIndex - 1
+      }
+    }
+
+    dispatch(changeSongIndexAction(newIndex))
     dispatch(updateCurrentSongfromSongListAction())
   }
 
-  /** 下一首 */
-  function handleNextBtnClick() {
-    dispatch(
-      changeSongIndexAction(
-        songIndex === songList.length - 1 ? 0 : songIndex + 1
-      )
-    )
-    dispatch(updateCurrentSongfromSongListAction())
+  /** 播放结束 */
+  function handleEnded() {
+    if (playMode === PlayMode.CYCLE) {
+      audioRef.current!.currentTime = 0
+      audioRef.current!.play()
+    } else {
+      handleChangeMusicClick(true)
+    }
+  }
+
+  /** 播放模式切换 */
+  function handlePlayModeClick() {
+    let newPlayMode = playMode + 1
+    if (newPlayMode > 2) newPlayMode = 0
+    dispatch(changePlayModeAction(newPlayMode))
   }
 
   return (
@@ -181,7 +205,7 @@ const PlayerBar = forwardRef<IExp, IProps>((props, ref) => {
         <BarControlWrapper $isPlaying={isPlaying}>
           <button
             className="btn sprite_playerbar prev"
-            onClick={handlePrevBtnClick}
+            onClick={() => handleChangeMusicClick(false)}
           ></button>
           <button
             className="btn sprite_playerbar play"
@@ -189,7 +213,7 @@ const PlayerBar = forwardRef<IExp, IProps>((props, ref) => {
           ></button>
           <button
             className="btn sprite_playerbar next"
-            onClick={handleNextBtnClick}
+            onClick={() => handleChangeMusicClick(true)}
           ></button>
         </BarControlWrapper>
         <BarInfoWrapper>
@@ -223,7 +247,7 @@ const PlayerBar = forwardRef<IExp, IProps>((props, ref) => {
             </div>
           </div>
         </BarInfoWrapper>
-        <BarOperatoreWrapper>
+        <BarOperatoreWrapper $playMode={playMode}>
           <div className="left">
             <button className="btn pip"></button>
             <button className="btn sprite_playerbar favor"></button>
@@ -231,12 +255,21 @@ const PlayerBar = forwardRef<IExp, IProps>((props, ref) => {
           </div>
           <div className="right sprite_playerbar">
             <button className="btn sprite_playerbar volume"></button>
-            <button className="btn sprite_playerbar loop"></button>
-            <button className="btn sprite_playerbar playlist"></button>
+            <button
+              className="btn sprite_playerbar loop"
+              onClick={handlePlayModeClick}
+            ></button>
+            <button className="btn sprite_playerbar playlist">
+              {songList.length}
+            </button>
           </div>
         </BarOperatoreWrapper>
       </div>
-      <audio ref={audioRef} onTimeUpdate={handleTimeUpdate} />
+      <audio
+        ref={audioRef}
+        onTimeUpdate={handleTimeUpdate}
+        onEnded={handleEnded}
+      />
     </PlayerBarWrapper>
   )
 })

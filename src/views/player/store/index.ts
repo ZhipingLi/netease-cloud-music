@@ -14,6 +14,13 @@ interface IPlayerState {
   lyricIndex: number
   songList: any[]
   songIndex: number
+  playMode: PlayMode
+}
+
+export enum PlayMode {
+  INORDER = 0, // 顺序播放
+  SHUFFLE = 1, // 随机播放
+  CYCLE = 2, // 单曲循环
 }
 
 const initialState: IPlayerState = {
@@ -22,6 +29,7 @@ const initialState: IPlayerState = {
   lyricIndex: -1,
   songList: [defaultSong],
   songIndex: 0,
+  playMode: PlayMode.INORDER,
 }
 
 const playerSlice = createSlice({
@@ -46,6 +54,9 @@ const playerSlice = createSlice({
     },
     changeSongIndexAction(state, { payload }: PayloadAction<number>) {
       state.songIndex = payload
+    },
+    changePlayModeAction(state, { payload }: PayloadAction<number>) {
+      state.playMode = payload
     },
   },
 })
@@ -78,6 +89,9 @@ const playerSlice = createSlice({
  * 2. 为createAppAsyncThunk定义预类型 - createAsyncThunk.withTypes<>()
  */
 
+interface IThunkState {
+  state: RootStateType
+}
 export const fetchSongDetailsToSongListAction = createAsyncThunk<
   void,
   {
@@ -86,7 +100,7 @@ export const fetchSongDetailsToSongListAction = createAsyncThunk<
     fullfilledCallback?: () => void
     rejectedCallback?: (err: Error) => void
   },
-  { state: RootStateType }
+  IThunkState
 >("player/songDetails", (args, { getState, dispatch }) => {
   getSongDetail(args.ids)
     .then((res) => {
@@ -105,20 +119,21 @@ export const fetchSongDetailsToSongListAction = createAsyncThunk<
     .catch(args.rejectedCallback)
 })
 
-export const updateCurrentSongfromSongListAction = createAsyncThunk(
-  "player/updateCurrentSong",
-  (_, { getState, dispatch }) => {
-    const { songList, songIndex, currentSong } = (getState() as any).player
-    dispatch(
-      // 实现切换相同歌曲时，歌曲重新播放
-      changeCurrentSongAction(
-        songList[songIndex] === currentSong
-          ? { ...songList[songIndex] }
-          : songList[songIndex]
-      )
+export const updateCurrentSongfromSongListAction = createAsyncThunk<
+  void,
+  void,
+  IThunkState
+>("player/updateCurrentSong", (_, { getState, dispatch }) => {
+  const { songList, songIndex, currentSong } = getState().player
+  dispatch(
+    // 实现切换相同歌曲时，歌曲重新播放
+    changeCurrentSongAction(
+      songList[songIndex] === currentSong
+        ? { ...songList[songIndex] }
+        : songList[songIndex]
     )
-  }
-)
+  )
+})
 
 export const fetchSongLyricAction = createAsyncThunk(
   "player/songLyric",
@@ -137,9 +152,9 @@ export const playSingleSongAction = createAsyncThunk<
     id: number
     callback?: () => void
   },
-  { state: RootStateType }
+  IThunkState
 >("player/playSingleSong", (args, { getState, dispatch }) => {
-  const { songList } = (getState() as any).player
+  const { songList } = getState().player
   const index = songList.findIndex((song: any) => song.id === args.id)
   if (index === -1) {
     dispatch(
@@ -162,9 +177,9 @@ export const playSongListAction = createAsyncThunk<
     ids: number[]
     callback?: () => void
   },
-  { state: RootStateType }
+  IThunkState
 >("player/playSongList", (args, { getState, dispatch }) => {
-  const { songList: originSongList } = (getState() as any).player
+  const { songList: originSongList } = getState().player
   dispatch(changeSongListAction([]))
   dispatch(
     fetchSongDetailsToSongListAction({
@@ -185,4 +200,5 @@ export const {
   changeLyricIndexAction,
   changeSongListAction,
   changeSongIndexAction,
+  changePlayModeAction,
 } = playerSlice.actions
