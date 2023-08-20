@@ -25,7 +25,6 @@ import {
   changeSongIndexAction,
   fetchSongDetailsToSongListAction,
   fetchSongLyricAction,
-  playSingleSongAction,
   updateCurrentSongfromSongListAction,
 } from "../store"
 
@@ -101,15 +100,6 @@ const PlayerBar = forwardRef<IExp, IProps>((props, ref) => {
       })
     )
   }, [])
-
-  function handlexxx() {
-    dispatch(
-      playSingleSongAction({
-        id: 2024611328,
-        callback: () => setIsPlaying(true),
-      })
-    )
-  }
 
   /** 播放/暂停处理 */
   function handlePlayBtnClick() {
@@ -240,10 +230,7 @@ const PlayerBar = forwardRef<IExp, IProps>((props, ref) => {
             <button className="btn sprite_playerbar share"></button>
           </div>
           <div className="right sprite_playerbar">
-            <button
-              className="btn sprite_playerbar volume"
-              onClick={handlexxx}
-            ></button>
+            <button className="btn sprite_playerbar volume"></button>
             <button className="btn sprite_playerbar loop"></button>
             <button className="btn sprite_playerbar playlist"></button>
           </div>

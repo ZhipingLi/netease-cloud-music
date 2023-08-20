@@ -10,6 +10,7 @@ export function parseLyric(lyricStr: string) {
 
   return lyricLines
     .map((lyricLine) => {
+      // lyricLine -> "[01:00.57]我才领会到什么叫做往事如烟"
       const result = timeRegExp.exec(lyricLine)
       if (!result) return false
 
@@ -24,5 +25,5 @@ export function parseLyric(lyricStr: string) {
       const text = lyricLine.replace(timeRegExp, "")
       return { text, time }
     })
-    .filter((lyric) => lyric) as ILyric[]
+    .filter((lyric) => lyric && lyric.text) as ILyric[]
 }

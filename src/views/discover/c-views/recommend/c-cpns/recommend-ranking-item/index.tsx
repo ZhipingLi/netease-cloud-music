@@ -7,7 +7,7 @@ import { useAppDispatch } from "@/store"
 import { RankingItemWrapper } from "./style"
 import type { Playlist } from "../../service"
 import { formatImageUrlBySize } from "@/utils"
-import { playSongListAction } from "@/views/player/store"
+import { playSingleSongAction, playSongListAction } from "@/views/player/store"
 import { playBarContext } from "@/global/context"
 
 interface IProps {
@@ -25,6 +25,20 @@ const RecommendRankingItem: FC<IProps> = (props) => {
     dispatch(
       playSongListAction({
         ids,
+        callback: () => {
+          flushSync(() => {
+            setIsPlaying && setIsPlaying(true)
+          })
+        },
+      })
+    )
+  }
+
+  function handleSingleSongBtnClick(index: number) {
+    const id = itemData.trackIds.map((item) => item.id)[index]
+    dispatch(
+      playSingleSongAction({
+        id,
         callback: () => {
           flushSync(() => {
             setIsPlaying && setIsPlaying(true)
@@ -59,7 +73,10 @@ const RecommendRankingItem: FC<IProps> = (props) => {
             <div className="info">
               <div className="name">{item.name}</div>
               <div className="operators">
-                <button className="btn sprite_02 play"></button>
+                <button
+                  className="btn sprite_02 play"
+                  onClick={() => handleSingleSongBtnClick(index)}
+                ></button>
                 <button className="btn sprite_icon2 add"></button>
                 <button className="btn sprite_02 favor"></button>
               </div>
