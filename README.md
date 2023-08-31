@@ -1,3 +1,23 @@
+# A simple implementation of Netease Cloud Music based on React.js + TypeScript
+
+This project was deployed at [8.137.104.142:81](http://8.137.104.142:81/).
+
+## Screenshots
+
+### `Recommend page`
+![rmd-1](https://github.com/ZhipingLi/netease-cloud-music/assets/89546528/2d2375e1-9d99-45cf-ba8c-c9c558367ee0)
+<hr/>
+
+![rmd-2](https://github.com/ZhipingLi/netease-cloud-music/assets/89546528/c18d8d88-1837-457e-b988-d50b09d6160d)
+
+
+### `Player`
+![player](https://github.com/ZhipingLi/netease-cloud-music/assets/89546528/62d9a6b8-bfc2-4f93-940d-93cb3bb9d828)
+<hr/>
+
+![player](https://github.com/ZhipingLi/netease-cloud-music/assets/89546528/c549000b-f9f4-4630-9954-3e7b98b708f0)
+</br></br>
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
